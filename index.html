@@ -111,6 +111,7 @@ mark{background:#F5D98B;color:#12312C;border-radius:3px;padding:0 2px}
   background:var(--ink);color:var(--page);padding:10px 20px;border-radius:12px;opacity:0;pointer-events:none;
   transition:opacity .15s, transform .15s;font-weight:600
 }
+.toast{max-width:min(92vw,560px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 footer{color:var(--muted);font-size:.8rem;text-align:center;padding:0 24px 24px}
 
@@ -291,7 +292,33 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     .replace(/[أإآٱ]/g,'ا').replace(/ة/g,'ه').replace(/ى/g,'ي').replace(/ؤ/g,'و').replace(/ئ/g,'ي')
     .toLowerCase().replace(/\s+/g,'');
 
-  let tt; function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1800)}
+  let tt; function toast(m,ms){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),ms||1800)}
+  // ---------- click-to-call through the local dialer service (which talks to the UCM) ----------
+  function myExt(){
+    const me=(account.username||'').toLowerCase();
+    const hit=data.find(x=>x.email&&x.email.toLowerCase()===me);
+    if(hit&&hit.ext) return hit.ext;
+    let v=null; try{v=localStorage.getItem('my-ext')}catch(_){}
+    if(v) return v;
+    v=(prompt('اكتب رقم تحويلتك (رقم تلفون مكتبك) — مرة واحدة فقط')||'').replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+    if(!/^\d{1,8}$/.test(v)) return null;
+    try{localStorage.setItem('my-ext',v)}catch(_){}
+    return v;
+  }
+  async function dial(ext,name){
+    const me=myExt();
+    if(!me){ toast('لم يتم تحديد رقم تحويلتك',3000); return; }
+    if(me===ext){ toast('هذه تحويلتك أنت',2500); return; }
+    toast(`جارٍ الاتصال بـ ${name} (${ext})…`,4000);
+    try{
+      const r=await fetch(`http://127.0.0.1:47123/dial?caller=${encodeURIComponent(me)}&callee=${encodeURIComponent(ext)}`,{cache:'no-store'});
+      const j=await r.json().catch(()=>({}));
+      if(r.ok&&j.ok) toast(`📞 تلفونك (${me}) يرنّ الآن — ارفع السماعة للاتصال بـ ${name}`,6000);
+      else toast('تعذّر الاتصال: '+(j.error||r.status)+' — تواصل مع الدعم الفني (222)',6000);
+    }catch(_){
+      toast('خدمة الاتصال غير مثبتة على هذا الجهاز — تواصل مع الدعم الفني (222)',6000);
+    }
+  }
   function fail(msg){window.__showErr(msg)}
 
   // ---------- sign-in (silent SSO with the Windows work account) ----------
@@ -378,7 +405,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     shown.forEach(e=>{
       if(e.dept!==cd){ if(cd!==null)h+='</div></section>'; cd=e.dept; cs=null; h+=`<section class="group"><h2>${esc(e.dept)}</h2><div class="list">`; }
       if(e.section!==cs){ cs=e.section; if(e.section)h+=`<div class="sect">${highlight(e.section,terms)}</div>`; }
-      const acts=`<a href="tel:${esc(e.ext)}" class="call-btn" title="اتصال من تلفون المكتب">${icoCall}</a>`+(e.email?`<a href="mailto:${esc(e.email)}" title="${esc(e.email)}">${icoMail}</a><a href="https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(e.email)}" target="_blank" rel="noopener" title="محادثة Teams">${icoChat}</a>`:'')
+      const acts=`<a href="#" class="call-btn" data-call="${esc(e.ext)}" data-cname="${esc(e.name)}" title="اتصال من تلفون المكتب">${icoCall}</a>`+(e.email?`<a href="mailto:${esc(e.email)}" title="${esc(e.email)}">${icoMail}</a><a href="https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(e.email)}" target="_blank" rel="noopener" title="محادثة Teams">${icoChat}</a>`:'')
         +`<a href="#" class="edit-btn" data-edit="${esc(e.id)}" title="تعديل">${icoEdit}</a>`;
       h+=`<div class="row"><div class="who"><div class="name">${highlight(e.name,terms)}${e.head?'<span class="head-mark">مدير</span>':''}</div>${e.title?`<div class="meta">${highlight(e.title,terms)}</div>`:''}</div>
         <div class="actions">${acts}</div>
@@ -431,6 +458,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
   }
   document.addEventListener('click',ev=>{
     const ed=ev.target.closest('[data-edit]'); if(ed){ev.preventDefault();openDlg(data.find(x=>x.id===ed.dataset.edit));return}
+    const cb=ev.target.closest('[data-call]'); if(cb){ev.preventDefault();dial(cb.dataset.call,cb.dataset.cname);return}
     const k=ev.target.closest('[data-ext]'); if(k){copy(k.dataset.ext,k.dataset.name);return}
     const d=ev.target.closest('nav.depts button'); if(d){activeDept=d.dataset.d;render();window.scrollTo({top:0})}
   });
