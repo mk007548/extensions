@@ -477,7 +477,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
       if(e.section!==cs){ cs=e.section; if(e.section)h+=`<div class="sect">${highlight(e.section,terms)}</div>`; }
       const acts=`<a href="#" class="call-btn" data-call="${esc(e.ext)}" data-cname="${esc(e.name)}" title="اتصال من تلفون المكتب">${icoCall}</a>`+(e.email?`<a href="mailto:${esc(e.email)}" title="${esc(e.email)}">${icoMail}</a><a href="https://teams.microsoft.com/l/chat/0/0?users=${encodeURIComponent(e.email)}" target="_blank" rel="noopener" title="محادثة Teams">${icoChat}</a>`:'')
         +`<a href="#" class="edit-btn" data-edit="${esc(e.uid)}" title="تعديل">${icoEdit}</a>`;
-      h+=`<div class="row"><div class="who"><div class="name">${highlight(e.name,terms)}${e.head?'<span class="head-mark">مدير</span>':''}${isAdmin&&canSee.m&&canSee.w?`<span class="bk">${e.book==='w'?'نساء':'رجال'}</span>`:''}</div>${e.title?`<div class="meta">${highlight(e.title,terms)}</div>`:''}</div>
+      h+=`<div class="row"><div class="who"><div class="name">${highlight(e.name,terms)}${e.head?'<span class="head-mark">مدير</span>':''}</div>${e.title?`<div class="meta">${highlight(e.title,terms)}</div>`:''}</div>
         <div class="actions">${acts}</div>
         <button class="key" data-ext="${esc(e.ext)}" data-name="${esc(e.name)}" title="انقر لنسخ الرقم">${highlight(e.ext,terms)}</button></div>`;
     });
