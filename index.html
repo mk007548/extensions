@@ -215,6 +215,21 @@ dialog select{font:inherit;font-size:1rem;color:var(--ink);padding:9px 12px;bord
     </div>
   </form>
 </dialog>
+<dialog id="onb">
+  <div class="body" style="display:flex;flex-direction:column;gap:12px;min-width:min(440px,86vw)">
+    <h3 style="margin:0">تجهيز موظفة جديدة</h3>
+    <div id="onbWho" class="note"></div>
+    <div class="card" id="onbAuto" style="line-height:1.9"></div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button type="button" class="btn primary" id="onbCsv">1) تنزيل ملف التحويلة للسنترال</button>
+      <a class="btn" id="onbUcm" href="https://198.168.8.133:8089/extension-trunk/extension" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">2) فتح السنترال ← More ← Import ← Update</a>
+      <button type="button" class="btn primary" id="onbMail">3) إرسال إيميل الترحيب (تصلك نسخة)</button>
+    </div>
+    <div class="note">⚠️ لا تغلق هذه النافذة قبل الخطوة 3 — كلمة المرور لا تُحفظ في أي مكان.</div>
+    <div class="err" id="onbErr"></div>
+    <div style="display:flex;justify-content:flex-end"><button type="button" class="btn" id="onbClose">إغلاق</button></div>
+  </div>
+</dialog>
 <datalist id="dlDept"></datalist><datalist id="dlSect"></datalist>
 <dialog id="perm">
   <div class="body">
@@ -500,7 +515,10 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     const v=e||{book:(data.find(x=>x.dept===activeDept)||{}).book||'m',dept:activeDept,section:'',name:'',title:'',ext:'',email:'',head:false};
     frm.elements.book.value=v.book||'m'; $('bookWrap').hidden=!LISTS.w;
     ['name','ext','email','dept','section','title'].forEach(k=>frm.elements[k].value=v[k]||'');
-    frm.elements.head.checked=!!v.head; dlg.showModal(); frm.elements.name.focus();
+    frm.elements.head.checked=!!v.head;
+    if(!e&&frm.elements.book.value==='w'&&!frm.elements.ext.value) frm.elements.ext.value=nextWExt();
+    frm.elements.book.onchange=()=>{ if(!cur&&frm.elements.book.value==='w') frm.elements.ext.value=nextWExt(); };
+    dlg.showModal(); frm.elements.name.focus();
   }
   $('btnCancel').onclick=()=>dlg.close();
   frm.addEventListener('submit',async ev=>{
@@ -513,7 +531,9 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     try{
       if(cur&&cur.book===e.book) await api('PATCH',`${LISTS[e.book]}/items/${cur.id}/fields`,toFields(e));
       else { await api('POST',`${LISTS[e.book]}/items`,{fields:toFields(e)}); if(cur) await api('DELETE',`${LISTS[cur.book]}/items/${cur.id}`); }
+      const isNewW=!cur&&e.book==='w'&&!!e.email;
       dlg.close(); toast('تم الحفظ'); await load();
+      if(isNewW) onboard(e);
     }catch(err){ $('dlgErr').textContent=err.message; }
     finally{ $('btnSave').disabled=false; }
   });
@@ -523,6 +543,59 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     catch(err){ $('dlgErr').textContent=err.message; }
   };
 
+
+
+  // ---------- new employee onboarding (women) ----------
+  function nextWExt(){ const n=data.filter(x=>x.book==='w').map(x=>parseInt(x.ext,10)).filter(v=>v>=600&&v<700); return String(n.length?Math.max(...n)+1:600); }
+  function genPw(){
+    const C='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789', S='@#!*';
+    const pick=(pool,n,prev)=>{ let r=''; while(r.length<n){ const ch=pool[crypto.getRandomValues(new Uint32Array(1))[0]%pool.length]; const last=r?r[r.length-1]:(prev?prev[prev.length-1]:null);
+      if(last!=null){ if(ch.toLowerCase()===last.toLowerCase()) continue; if(/\d/.test(ch)&&/\d/.test(last)&&Math.abs(+ch-+last)<=1) continue; } r+=ch; } return r; };
+    let a='Kq7'; a+=pick(S,1,a); a+=pick(C,8,a); a+=pick(S,1,a); a+=pick(C,2,a); return a;
+  }
+  function vmPin(){ let r=''; while(r.length<6){ const d=String(crypto.getRandomValues(new Uint32Array(1))[0]%10); const l=r[r.length-1]; if(l!=null&&Math.abs(+d-+l)<=1) continue; r+=d; } return r; }
+  let onbCur=null;
+  async function onboard(e){
+    const parts=e.name.split(/\s+/); onbCur={ext:e.ext,name:e.name,first:parts[0],last:parts.slice(1).join(' ')||parts[0],mail:e.email,pw:genPw(),sip:genPw(),vm:vmPin()};
+    $('onbErr').textContent=''; $('onbWho').innerHTML=`<b>${esc(e.name)}</b> — تحويلة <b>${esc(e.ext)}</b> — <span dir="ltr">${esc(e.email)}</span>`;
+    const box=$('onbAuto'); box.innerHTML='✅ أضيفت للدليل<br>⏳ إضافتها لمجموعة النساء وتثبيت «مكنون» على جهازها…';
+    $('onb').showModal();
+    try{
+      const id=await userId(e.email); if(!id) throw new Error('البريد غير موجود في Microsoft 365');
+      const pilot=(await gapi('GET',`/groups?$filter=displayName eq 'VPN-Pilot'&$select=id`)).value[0];
+      for(const g of [CONFIG.groupWomen, pilot&&pilot.id].filter(Boolean)) await gapi('POST',`/groups/${g}/members/$ref`,{'@odata.id':`${GRAPH}/directoryObjects/${id}`});
+      box.innerHTML='✅ أضيفت للدليل<br>✅ أضيفت لمجموعة النساء — «مكنون» وتحويلتي يتثبّتون على جهازها تلقائياً';
+    }catch(err){ box.innerHTML='✅ أضيفت للدليل<br>❌ تعذّرت إضافتها للمجموعات'; $('onbErr').textContent=err.message; }
+  }
+  $('onbClose').onclick=()=>{ if(onbCur&&!onbCur.sent&&!confirm('ما أرسلت إيميل الترحيب بعد. تغلق النافذة؟')) return; $('onb').close(); onbCur=null; };
+  $('onbCsv').onclick=()=>{
+    const p=onbCur; if(!p) return;
+    const H=['Extension','First Name','Last Name','Technology','Enable Voicemail','CallerID Number','SIP/IAX Password','Voicemail Password','Permission','AuthID','User Password','Email Address','Enable Contact'];
+    const V=[p.ext,p.first,p.last,'SIP(WebRTC)','yes',p.ext,p.sip,p.vm,'Internal',p.ext,p.pw,p.mail,'yes'];
+    const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
+    const blob=new Blob([H.map(q).join(',')+'\r\n'+V.map(q).join(',')+'\r\n'],{type:'text/csv'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`extension-${p.ext}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+    toast('نزل الملف — ارفعه في السنترال',3000);
+  };
+  $('onbMail').onclick=async()=>{
+    const p=onbCur; if(!p) return; $('onbErr').textContent=''; $('onbMail').disabled=true;
+    try{
+      const html=`<div dir="rtl" style="font-family:Tahoma,Arial;font-size:15px;line-height:2;color:#222;max-width:560px">
+<p style="font-size:17px"><b>مرحباً ${esc(p.first)}،</b></p>
+<p>يسعدنا إبلاغك أنه صار لك تحويلة هاتف على جهازك، تتصلين وتستقبلين منها مباشرة بدون هاتف مكتبي.</p>
+<div style="background:#f1f8f5;border:1px solid #cfe8dd;border-radius:12px;padding:12px 16px;margin:14px 0;text-align:center"><div style="font-size:13px;color:#555">رقم تحويلتك</div><div style="font-size:34px;font-weight:bold;color:#0b6e4f;letter-spacing:2px">${esc(p.ext)}</div></div>
+<p><b>للتشغيل (مرة وحدة فقط):</b></p>
+<p>1️⃣ افتحي <b>مكنون</b> من سطح المكتب، وادخلي ببريدك وكلمة مرور بريدك المعتادة.</p>
+<p>2️⃣ افتحي <b>تحويلتي</b> وادخلي بـ:<br>&nbsp;&nbsp;&nbsp;• رقم التحويلة: <b>${esc(p.ext)}</b><br>&nbsp;&nbsp;&nbsp;• كلمة المرور: <b dir="ltr" style="font-family:Consolas,monospace;background:#f4f4f4;padding:2px 6px;border-radius:4px">${esc(p.pw)}</b></p>
+<p>بعدها تشتغل تحويلتي تلقائياً كل يوم مع تشغيل الجهاز.</p>
+<p>📖 أرقام الزملاء تلقينها في <a href="https://mk007548.github.io/extensions/">دليل التحويلات</a>.</p>
+<p style="margin-top:22px">مع التحية،<br><b>م. سامي المجممي</b><br><span style="color:#555">رئيس قسم الدعم الفني والشبكات</span></p></div>`;
+      const tk=await tokenFor(['https://graph.microsoft.com/Mail.Send']);
+      const r=await fetch(GRAPH+'/me/sendMail',{method:'POST',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({message:{subject:`تحويلتك جاهزة ☎️ ${p.ext}`,body:{contentType:'HTML',content:html},toRecipients:[{emailAddress:{address:p.mail}}],ccRecipients:[{emailAddress:{address:account.username}}]},saveToSentItems:true})});
+      if(!r.ok) throw new Error(r.status+' '+(await r.text()).slice(0,200));
+      p.sent=true; toast('تم إرسال الإيميل ✅',3000); $('onbMail').textContent='✅ تم إرسال الإيميل';
+    }catch(err){ $('onbErr').textContent=err.message; $('onbMail').disabled=false; }
+  };
 
   // ---------- permissions (admin) ----------
   const GID={m:CONFIG.groupMen,w:CONFIG.groupWomen};
