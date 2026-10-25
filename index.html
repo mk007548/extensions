@@ -205,6 +205,7 @@ dialog select{font:inherit;font-size:1rem;color:var(--ink);padding:9px 12px;bord
     <label>القسم<input name="section" list="dlSect"></label>
     <label>الوظيفة<input name="title"></label>
     <label class="chk"><input type="checkbox" name="head"> مدير (تظهر شارة «مدير»)</label>
+    <button type="button" class="btn primary" id="btnOnb" hidden style="width:100%;box-sizing:border-box">☎️ تجهيز التحويلة (ملف السنترال + إيميل الترحيب)</button>
     <div class="err" id="dlgErr"></div>
     <div class="foot">
       <button type="button" class="btn danger" id="btnDel">حذف</button>
@@ -511,7 +512,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
   const dlg=$('dlg'), frm=$('frm'); let cur=null;
   function openDlg(e){
     cur=e; $('dlgErr').textContent=''; $('dlgTitle').textContent=e?'تعديل بيانات موظف':'إضافة موظف';
-    $('btnDel').hidden=!e;
+    $('btnDel').hidden=!e; $('btnOnb').hidden=!(e&&e.book==='w'&&e.email);
     const v=e||{book:(data.find(x=>x.dept===activeDept)||{}).book||'m',dept:activeDept,section:'',name:'',title:'',ext:'',email:'',head:false};
     frm.elements.book.value=v.book||'m'; $('bookWrap').hidden=!LISTS.w;
     ['name','ext','email','dept','section','title'].forEach(k=>frm.elements[k].value=v[k]||'');
@@ -521,6 +522,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     dlg.showModal(); frm.elements.name.focus();
   }
   $('btnCancel').onclick=()=>dlg.close();
+  $('btnOnb').onclick=()=>{ const e=cur; dlg.close(); onboard(e); };
   frm.addEventListener('submit',async ev=>{
     ev.preventDefault();
     const e={}; ['name','ext','email','dept','section','title'].forEach(k=>e[k]=frm.elements[k].value.trim()); e.head=frm.elements.head.checked; e.book=LISTS.w?frm.elements.book.value:'m';
