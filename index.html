@@ -139,6 +139,7 @@ body.editing .actions a.edit-btn{display:grid}
 body.editing .editbar{display:block}
 dialog{border:0;border-radius:16px;padding:0;width:min(520px,94vw);background:var(--surface);color:var(--ink)}
 dialog::backdrop{background:rgba(10,25,22,.45)}
+dialog *{box-sizing:border-box}dialog form>*,dialog label,dialog .row2>*{min-width:0}dialog input:not([type=checkbox]),dialog select{width:100%;min-width:0}
 dialog form{padding:22px;display:grid;gap:12px}
 dialog h3{margin:0 0 4px}
 dialog label{display:grid;gap:4px;font-size:.88rem;color:var(--muted)}
@@ -217,13 +218,13 @@ dialog select{font:inherit;font-size:1rem;color:var(--ink);padding:9px 12px;bord
   </form>
 </dialog>
 <dialog id="onb">
-  <div class="body" style="display:flex;flex-direction:column;gap:12px;min-width:min(440px,86vw)">
+  <div class="body" style="display:flex;flex-direction:column;gap:12px;padding:22px">
     <h3 style="margin:0">تجهيز موظفة جديدة</h3>
     <div id="onbWho" class="note"></div>
-    <div class="card" id="onbAuto" style="line-height:1.9"></div>
+    <div class="card" id="onbAuto" style="line-height:1.9;padding:10px 12px;border:1px solid var(--line);border-radius:10px"></div>
     <div style="display:flex;flex-direction:column;gap:8px">
       <button type="button" class="btn primary" id="onbCsv">1) تنزيل ملف التحويلة للسنترال</button>
-      <a class="btn" id="onbUcm" href="https://198.168.8.133:8089/extension-trunk/extension" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">2) فتح السنترال ← More ← Import ← Update</a>
+      <a class="btn" id="onbUcm" href="https://198.168.8.133:8089/extension-trunk/extension" target="_blank" rel="noopener" style="text-align:center;text-decoration:none;color:inherit">2) فتح السنترال ← More ← Import ← Update</a>
       <button type="button" class="btn primary" id="onbMail">3) إرسال إيميل الترحيب (تصلك نسخة)</button>
     </div>
     <div class="note">⚠️ لا تغلق هذه النافذة قبل الخطوة 3 — كلمة المرور لا تُحفظ في أي مكان.</div>
@@ -588,10 +589,10 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
 <div style="background:#f1f8f5;border:1px solid #cfe8dd;border-radius:12px;padding:12px 16px;margin:14px 0;text-align:center"><div style="font-size:13px;color:#555">رقم تحويلتك</div><div style="font-size:34px;font-weight:bold;color:#0b6e4f;letter-spacing:2px">${esc(p.ext)}</div></div>
 <p><b>للتشغيل (مرة وحدة فقط):</b></p>
 <p>1️⃣ افتحي <b>مكنون</b> من سطح المكتب، وادخلي ببريدك وكلمة مرور بريدك المعتادة.</p>
-<p>2️⃣ افتحي <b>تحويلتي</b> وادخلي بـ:<br>&nbsp;&nbsp;&nbsp;• رقم التحويلة: <b>${esc(p.ext)}</b><br>&nbsp;&nbsp;&nbsp;• كلمة المرور: <b dir="ltr" style="font-family:Consolas,monospace;background:#f4f4f4;padding:2px 6px;border-radius:4px">${esc(p.pw)}</b></p>
+<p>2️⃣ افتحي <b>تحويلتي</b> وادخلي بـ:<br>&nbsp;&nbsp;&nbsp;• رقم التحويلة: <b>${esc(p.ext)}</b><br>&nbsp;&nbsp;&nbsp;• كلمة المرور: <b dir="ltr" style="font-family:Consolas,monospace;background:#f4f4f4;padding:2px 6px;border-radius:4px">${esc(p.pw)}</b><br>&nbsp;&nbsp;&nbsp;• حدّدي ✅ <b>«تذكّرني»</b> عشان ما تطلب منك كلمة المرور مرة ثانية.</p>
 <p>بعدها تشتغل تحويلتي تلقائياً كل يوم مع تشغيل الجهاز.</p>
 <p>📖 أرقام الزملاء تلقينها في <a href="https://mk007548.github.io/extensions/">دليل التحويلات</a>.</p>
-<p style="margin-top:22px">مع التحية،<br><b>م. سامي المجممي</b><br><span style="color:#555">رئيس قسم الدعم الفني والشبكات</span></p></div>`;
+<p style="margin-top:22px;color:#555">لأي استفسار، تواصلي مع رئيس القسم <b>م. سامي المجممي</b>.</p></div>`;
       const tk=await tokenFor(['https://graph.microsoft.com/Mail.Send']);
       const r=await fetch(GRAPH+'/me/sendMail',{method:'POST',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json'},body:JSON.stringify({message:{subject:`تحويلتك جاهزة ☎️ ${p.ext}`,body:{contentType:'HTML',content:html},toRecipients:[{emailAddress:{address:p.mail}}],ccRecipients:[{emailAddress:{address:account.username}}]},saveToSentItems:true})});
       if(!r.ok) throw new Error(r.status+' '+(await r.text()).slice(0,200));
