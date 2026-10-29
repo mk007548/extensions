@@ -477,8 +477,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     const matches=numeric?data.filter(e=>e.ext.startsWith(terms[0])):data.filter(e=>terms.every(t=>e.hay.includes(t)));
     const counts={'':matches.length}; matches.forEach(e=>counts[e.dept]=(counts[e.dept]||0)+1);
     deptsEl.innerHTML=`<button data-d="" aria-pressed="${activeDept===''}"><span>كل الإدارات</span><span class="n">${counts['']}</span></button>`+
-      depts.map(d=>`<button data-d="${esc(d)}" aria-pressed="${activeDept===d}"><span>${esc(d)}</span><span class="n">${counts[d]||0}</span></button>`).join('')+
-      (canSee.m&&!canSee.w&&LISTS.w&&!depts.includes('القسم النسائي')?`<button data-lock="w" aria-pressed="${activeDept==='__lockw'}" style="opacity:.75"><span>القسم النسائي 🔒</span><span class="n"></span></button>`:'');
+      depts.map(d=>`<button data-d="${esc(d)}" aria-pressed="${activeDept===d}"><span>${esc(d)}</span><span class="n">${counts[d]||0}</span></button>`).join('');
     if(activeDept==='__lockw'){ $('count').textContent=''; results.innerHTML='<div class="empty"><strong>🔒 القسم النسائي</strong>عرض هذا القسم يحتاج صلاحية.<br>تواصل مع رئيس قسم الدعم الفني والشبكات م. سامي المجممي (222).</div>'; return; }
     const shown=activeDept?matches.filter(e=>e.dept===activeDept):matches;
     $('count').textContent=raw||activeDept?`${shown.length} من ${data.length}`:`${data.length} تحويلة`;
@@ -591,7 +590,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
 <div style="background:#f1f8f5;border:1px solid #cfe8dd;border-radius:12px;padding:12px 16px;margin:14px 0;text-align:center"><div style="font-size:13px;color:#555">رقم تحويلتك</div><div style="font-size:34px;font-weight:bold;color:#0b6e4f;letter-spacing:2px">${esc(p.ext)}</div></div>
 <p><b>للتشغيل (مرة وحدة فقط):</b></p>
 <p>1️⃣ افتحي <b>مكنون</b> من سطح المكتب، وادخلي ببريدك وكلمة مرور بريدك المعتادة.</p>
-<p>2️⃣ افتحي <b>تحويلتي</b> وادخلي بـ:<br>&nbsp;&nbsp;&nbsp;• رقم التحويلة: <b>${esc(p.ext)}</b><br>&nbsp;&nbsp;&nbsp;• كلمة المرور: <b dir="ltr" style="font-family:Consolas,monospace;background:#f4f4f4;padding:2px 6px;border-radius:4px">${esc(p.pw)}</b></p>
+<p>2️⃣ افتحي <b>تحويلتي</b> وادخلي بـ:<br>&nbsp;&nbsp;&nbsp;• رقم التحويلة: <b>${esc(p.ext)}</b><br>&nbsp;&nbsp;&nbsp;• كلمة المرور: <b dir="ltr" style="font-family:Consolas,monospace;background:#f4f4f4;padding:2px 6px;border-radius:4px">${esc(p.pw)}</b><br>&nbsp;&nbsp;&nbsp;• حدّدي ✅ <b>«تسجيل الدخول التلقائي»</b> — وما يطلب منك الدخول مرة ثانية.</p>
 <p>بعدها تشتغل تحويلتي تلقائياً كل يوم مع تشغيل الجهاز.</p>
 <p>📖 أرقام الزملاء تلقينها في <a href="https://mk007548.github.io/extensions/">دليل التحويلات</a>.</p>
 <p style="margin-top:22px;color:#555">لأي استفسار، تواصلي مع رئيس القسم <b>م. سامي المجممي</b>.</p></div>`;
