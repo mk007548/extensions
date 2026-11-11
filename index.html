@@ -167,6 +167,17 @@ dialog select{font:inherit;font-size:1rem;color:var(--ink);padding:9px 12px;bord
 #perm .one input{flex:1 1 220px;font:inherit;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--page);color:var(--ink)}
 #perm .bk{font-size:.75rem;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:0 6px;margin-inline-start:6px}
 @media (max-width:600px){#perm .cards{grid-template-columns:1fr}}
+
+.quick button.book{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+#rooms{width:min(620px,94vw)}
+#rooms .body{padding:20px 22px;display:grid;gap:8px;max-height:80vh;overflow:auto}
+#rooms h3{margin:0}#rooms .sub{color:var(--muted);font-size:.9rem;margin:0}
+#rooms h4{margin:10px 0 4px;color:var(--accent);font-size:.95rem}
+#rooms .rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+#rooms .rcard{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-decoration:none;color:var(--ink);background:var(--page)}
+#rooms .rcard:hover{border-color:var(--accent)}
+#rooms .rcard span{color:var(--gold);font-weight:600;font-size:.85rem;white-space:nowrap}
+#rooms .foot{display:flex;justify-content:flex-end;margin-top:6px}
 </style>
 </head>
 <body>
@@ -192,6 +203,11 @@ dialog select{font:inherit;font-size:1rem;color:var(--ink);padding:9px 12px;bord
 </div>
 <footer id="foot"></footer>
 <div class="toast" id="toast" role="status"></div>
+<dialog id="rooms"><div class="body"><h3>حجز قاعة</h3><p class="sub">اختر القاعة، ثم حدّد الوقت في Outlook واضغط «إرسال».</p><h4>المبنى الرئيسي</h4><div class="rgrid"><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=mc-room@maknon.org.sa&location=%D8%A7%D9%84%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D9%83%D8%A8%D8%B1%D9%89%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A"><b>القاعة الكبرى</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=pr-room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D8%AA%D8%B4%D8%B1%D9%8A%D9%81%D8%A7%D8%AA%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A"><b>قاعة التشريفات</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=tr-room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A"><b>قاعة التدريب</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=rc-room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D8%B1%D8%A6%D9%8A%D8%B3%D9%8A"><b>قاعة الرئيس</b><span>احجز ←</span></a></div><h4>المبنى النسائي</h4><div class="rgrid"><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=VL-Room@maknon.org.sa&location=%D8%B5%D8%A7%D9%84%D8%A9%20%D8%A7%D9%84%D8%AA%D8%B4%D8%B1%D9%8A%D9%81%D8%A7%D8%AA%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A6%D9%8A"><b>صالة التشريفات</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=MR-Room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D8%A7%D8%AC%D8%AA%D9%85%D8%A7%D8%B9%D8%A7%D8%AA%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A6%D9%8A"><b>قاعة الاجتماعات</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=TR--Room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D8%AA%D8%AF%D8%B1%D9%8A%D8%A8%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A6%D9%8A"><b>قاعة التدريب</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=E1-Room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D8%B9%D8%A7%D9%84%D9%8A%D8%A7%D8%AA%201%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A6%D9%8A"><b>قاعة الفعاليات 1</b><span>احجز ←</span></a><a class="rcard" target="_blank" rel="noopener" href="https://outlook.cloud.microsoft/calendar/deeplink/compose?to=E2-Room@maknon.org.sa&location=%D9%82%D8%A7%D8%B9%D8%A9%20%D8%A7%D9%84%D9%81%D8%B9%D8%A7%D9%84%D9%8A%D8%A7%D8%AA%202%20-%20%D8%A7%D9%84%D9%85%D8%A8%D9%86%D9%89%20%D8%A7%D9%84%D9%86%D8%B3%D8%A7%D8%A6%D9%8A"><b>قاعة الفعاليات 2</b><span>احجز ←</span></a></div><div class="foot"><button class="btn" id="roomsClose" type="button">إغلاق</button></div></div></dialog>
+<script>
+document.addEventListener('click',function(ev){var b=ev.target.closest&&ev.target.closest('#bookRoom');if(b){ev.preventDefault();ev.stopPropagation();document.getElementById('rooms').showModal();}if(ev.target&&ev.target.id==='roomsClose'){document.getElementById('rooms').close();}},true);
+</script>
+
 
 <dialog id="dlg">
   <form method="dialog" id="frm">
@@ -486,7 +502,7 @@ const CONFIG = {"clientId":"8d4c7898-41e8-40e9-bf0e-47a96eed743b","tenantId":"4e
     $('dlSect').innerHTML=[...new Set(data.map(e=>e.section).filter(Boolean))].map(s=>`<option value="${esc(s)}">`).join('');
 
     const quick=data.filter(e=>e.section==='الاستقبال'||e.dept==='المرافق العامة');
-    $('quick').innerHTML=quick.map(e=>`<button data-ext="${esc(e.ext)}" data-name="${esc(e.name)}"><span>${esc(e.section==='القاعات'?e.name:e.section)}</span><b>${esc(e.ext)}</b></button>`).join('');
+    $('quick').innerHTML=quick.map(e=>`<button data-ext="${esc(e.ext)}" data-name="${esc(e.name)}"><span>${esc(e.section==='القاعات'?e.name:e.section)}</span><b>${esc(e.ext)}</b></button>`).join('')+'<button class="book" id="bookRoom" type="button"><span>📅 حجز قاعة</span></button>';
 
     if(!shown.length){results.innerHTML=`<div class="empty"><strong>لا توجد نتائج لـ «${esc(raw)}»</strong>جرّب جزءًا من الاسم فقط، أو اختر «كل الإدارات».</div>`;return}
     let h='',cd=null,cs=null;
